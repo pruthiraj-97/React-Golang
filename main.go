@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+
 )
 
 type Todo struct{
@@ -24,11 +26,17 @@ var collection *mongo.Collection
 
 func main(){
 	app:=fiber.New()
-	// load the .env file
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	err:=godotenv.Load(".env")
+
 	if err!=nil {
       log.Fatal("Error loading .env file")
 	}
+
 	MONGODB_URI:=os.Getenv("MONGODB_URI")
 	ClientOptions:=options.Client().ApplyURI(MONGODB_URI)
 	client,err:=mongo.Connect(context.Background(),ClientOptions)
@@ -42,7 +50,6 @@ func main(){
 
 	fmt.Println("Connected to MongoDB ATLAS")
 	collection=client.Database("golangTodo").Collection("Todo")
-
     app.Get("/api/gettodos",getTodos)
 	app.Post("/api/addtodo",postTodo)
 	app.Patch("/api/updatetodo/:id",updateTodo)
@@ -57,7 +64,7 @@ func main(){
 
 func getTodos(c *fiber.Ctx)error{
 	var todos []Todo
-    cursor,err:=collection.Find(context.Background(),bson.M{})  // bson.M{} for the filteration of data
+    cursor,err:=collection.Find(context.Background(),bson.M{})
 	if err!=nil {
 		return err
 	}
@@ -72,7 +79,7 @@ func getTodos(c *fiber.Ctx)error{
 		todos=append(todos, todo)
 	}
 	return c.Status(200).JSON(fiber.Map{
-		"msg":todos,
+		"todos":todos,
 	})
 }
 
@@ -84,6 +91,7 @@ func postTodo(c *fiber.Ctx)error{
 	}
 	if todo.Body==""{
 		return c.Status(400).JSON(fiber.Map{
+			"status":400,
 			"msg":"invalid body",
 		})
 	}
@@ -93,6 +101,7 @@ func postTodo(c *fiber.Ctx)error{
 	}
 	todo.ID=insertResult.InsertedID.(primitive.ObjectID)
 	return c.Status(200).JSON(fiber.Map{
+		"status":200,
 		"msg":"Todo crrated",
 		"todo":todo,
 	})
@@ -103,6 +112,7 @@ func updateTodo(c *fiber.Ctx)error{
 	objectId,err:=primitive.ObjectIDFromHex(id)
 	if err!=nil {
 		return c.Status(400).JSON(fiber.Map{
+			"status":400,
 			"msg":"invalid id",
 		})
 	}
@@ -113,6 +123,7 @@ func updateTodo(c *fiber.Ctx)error{
 		return err
 	}
 	return c.Status(200).JSON(fiber.Map{
+		"status":200,
 		"msg":"Todo updated",
 	})
 }
@@ -122,6 +133,7 @@ func deleteTodo(c *fiber.Ctx)error{
 	objectId,err:=primitive.ObjectIDFromHex(id)
 	if err!=nil {
        return c.Status(400).JSON(fiber.Map{
+		"status":400,
 		"err":"id not found",
 	   })
 	}
@@ -131,6 +143,7 @@ func deleteTodo(c *fiber.Ctx)error{
        return err
 	}
 	return c.Status(200).JSON(fiber.Map{
+		"status":200,
 		"msg":"Todo deleted",
 	})
 }

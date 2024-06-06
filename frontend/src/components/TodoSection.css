@@ -1,0 +1,26 @@
+.AllTodos-div{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: 2px solid red;
+}
+.Todo-input-section{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 300px;
+}
+.Todosection{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    max-width: 400px;
+}
+.Todo-input-section button{
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}

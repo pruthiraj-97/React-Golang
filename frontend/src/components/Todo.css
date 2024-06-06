@@ -1,0 +1,22 @@
+.Todo-div{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.delete-icon{
+    color: red;
+    font-size: 20px;
+    cursor: pointer;
+}
+.cross-icon{
+    color: green;
+    font-size: 20px;
+    background-color: gold;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.right-icon{
+    color: blue;
+    font-size: 20px;
+    cursor: pointer;
+}
